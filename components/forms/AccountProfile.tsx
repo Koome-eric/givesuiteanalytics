@@ -154,7 +154,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name='name'
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-3'>
-              <FormLabel className='text-base-semibold text-light-2'>
+              <FormLabel className='text-base-semibold text-dark-2'>
                 Name
               </FormLabel>
               <FormControl>
@@ -174,7 +174,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name='username'
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-3'>
-              <FormLabel className='text-base-semibold text-light-2'>
+              <FormLabel className='text-base-semibold text-dark-2'>
                 Username
               </FormLabel>
               <FormControl>
@@ -194,7 +194,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name='bio'
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-3'>
-              <FormLabel className='text-base-semibold text-light-2'>
+              <FormLabel className='text-base-semibold text-dark-2'>
                 Bio
               </FormLabel>
               <FormControl>
