@@ -20,11 +20,6 @@ export const sidebarLinks = [
       route: "/donation",
       label: "Donations",
     },
-    {
-      imgURL: "/assets/user.svg",
-      route: "/profile",
-      label: "Profile",
-    },
   ];
   
   export const profileTabs = [
