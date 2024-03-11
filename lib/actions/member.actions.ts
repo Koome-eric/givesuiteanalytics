@@ -97,3 +97,17 @@ export async function fetchTotalMembers(userId: string): Promise<number> {
     throw new Error(`Failed to fetch total members: ${error.message}`);
   }
 }
+
+export const deleteMember = async (formData: FormData) => {
+  const { id } = Object.fromEntries(formData);
+
+  try {
+    connectToDB();
+    await Member.findByIdAndDelete(id);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to delete member!");
+  }
+
+  revalidatePath("/member");
+};

@@ -6,6 +6,7 @@ import Pagination from "@/components/shared/Pagination";
 import Search from "@/components/shared/Searchbar";
 
 import { fetchUser } from "@/lib/actions/user.actions";
+import { deleteMember } from "@/lib/actions/member.actions";
 import { fetchMembers } from "@/lib/actions/member.actions";
 
 import {
@@ -73,7 +74,7 @@ async function Page({
                         <img src='/assets/edit.svg' alt='Edit' className="w-5 h-5" />
                       </button>
                     </Link>
-                    <form action="">
+                    <form action={deleteMember}>
                       <input type="hidden" name="id" value={member._id} />
                       <button className="button-delete">
                         <img src='/assets/delete.svg' alt='Delete' className="w-5 h-5" />

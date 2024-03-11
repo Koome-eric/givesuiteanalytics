@@ -127,3 +127,17 @@ export async function fetchLatestDonations(userId: string, limit: number = 5) {
     throw new Error(`Failed to fetch latest donations: ${error.message}`);
   }
 }
+
+export const deleteDonation = async (formData: FormData) => {
+  const { id } = Object.fromEntries(formData);
+
+  try {
+    connectToDB();
+    await Donation.findByIdAndDelete(id);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to delete donation!");
+  }
+
+  revalidatePath("/donation");
+};

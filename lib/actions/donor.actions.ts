@@ -107,3 +107,49 @@ export async function fetchTotalDonors(userId: string): Promise<number> {
     throw new Error(`Failed to fetch total donors: ${error.message}`);
   }
 }
+
+export const deleteDonor = async (formData: FormData) => {
+  const { id } = Object.fromEntries(formData);
+
+  try {
+    connectToDB();
+    await Donor.findByIdAndDelete(id);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to delete donor!");
+  }
+
+  revalidatePath("/donor");
+};
+
+// Update a donor by ID
+export async function updateDonor(donorId: string, updateData: Partial<Params>) {
+  try {
+    connectToDB();
+
+    // Update the donor
+    const updatedDonor = await Donor.findByIdAndUpdate(donorId, updateData, { new: true });
+
+    // Optionally revalidate the path if using ISR
+    revalidatePath(`/donor`);
+
+    return updatedDonor; // Return the updated donor
+  } catch (error: any) {
+    throw new Error(`Failed to update donor: ${error.message}`);
+  }
+}
+
+export const fetchDonor = async (donorId: string) => {
+  try {
+    await connectToDB();
+    const donor = await Donor.findById(donorId);
+
+    if (!donor) {
+      throw new Error('Donor not found');
+    }
+
+    return donor;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch donor: ${error.message}`);
+  }
+};
