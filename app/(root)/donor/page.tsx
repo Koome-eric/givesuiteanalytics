@@ -32,7 +32,6 @@ async function Page({
 
   const result = await fetchDonors(user.id, searchParams?.page ? +searchParams.page : 1); 
   
-  console.log(result.donors);
 
   return (
     <>
