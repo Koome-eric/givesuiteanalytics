@@ -6,7 +6,7 @@ function Topbar() {
   return (
     <nav className='topbar'>
       <Link href='/' className='flex items-center gap-4'>
-      <Image src='/logo.svg' alt='logo' width={30} height={30} />
+      <Image src='/logo.svg' alt='logo' width={40} height={40} />
       <p className='text-heading4-bold text-dark-1 max-xs:hidden'>GIVESUITE</p>
       </Link>
 
