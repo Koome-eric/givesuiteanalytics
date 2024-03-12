@@ -35,6 +35,7 @@ async function Page({
 
   return (
     <>
+    <div className="bg-light-1 rounded-md p-7">
       <div className="flex justify-between items-center">
         
         <Search placeholder="Search for a donor..." />
@@ -92,6 +93,7 @@ async function Page({
         pageNumber={searchParams?.page ? +searchParams.page : 1}
         isNext={result.isNext}
       />
+      </div>
     </>
   );
 }
