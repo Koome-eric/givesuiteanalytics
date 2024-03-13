@@ -57,8 +57,18 @@ export async function addDonor({ name, primaryemailaddress, primarystreet, prima
   }
 }
 
-// Fetch members for a specific user
-export async function fetchDonors(userId: string, page: number = 1, limit: number = 10) {
+/// Fetch donors for a specific user with optional search query
+export async function fetchDonors({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  limit = 5,
+}: {
+  userId: string; // Specify the type for userId
+  searchString?: string;
+  pageNumber?: number;
+  limit?: number;
+}) {
   try {
     connectToDB();
 
@@ -68,25 +78,35 @@ export async function fetchDonors(userId: string, page: number = 1, limit: numbe
       throw new Error('User not found');
     }
 
-    // Calculate the number of members to skip based on the page number and limit
-    const skip = (page - 1) * limit;
+    // Create a regex for case-insensitive search
+    const searchRegex = new RegExp(searchString, 'i');
 
-    // Find members where the author matches the user's ObjectId, and paginate the results
-    const donors = await Donor.find({ author: user._id })
+    // Calculate the number of donors to skip based on the page number and limit
+    const skip = (pageNumber - 1) * limit;
+
+    // Find donors where the author matches the user's ObjectId and the name matches the search query, and paginate the results
+    const donors = await Donor.find({ 
+      author: user._id,
+      name: { $regex: searchRegex }
+    })
       .skip(skip)
       .limit(limit);
 
-    // Count the total number of members for the user
-    const totalDonors = await Donor.countDocuments({ author: user._id });
+    // Count the total number of donors for the user that match the search query
+    const totalDonors = await Donor.countDocuments({ 
+      author: user._id,
+      name: { $regex: searchRegex }
+    });
 
     // Check if there is a next page
     const isNext = totalDonors > skip + donors.length;
 
-    return { donors, isNext };
+    return { donors, isNext, pageNumber: pageNumber };
   } catch (error: any) {
     throw new Error(`Failed to fetch donors: ${error.message}`);
   }
 }
+
 
 // Fetch total donors for a specific user
 export async function fetchTotalDonors(userId: string): Promise<number> {

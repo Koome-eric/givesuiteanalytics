@@ -30,7 +30,15 @@ async function Page({
   const userInfo = await fetchUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const result = await fetchDonations(user.id, searchParams?.page ? +searchParams.page : 1);
+  const q = searchParams?.q || "";
+  const page = searchParams?.page || 1;
+
+  const result = await fetchDonations({
+    userId: user.id,
+    searchString: searchParams.q,
+    pageNumber: Number(searchParams?.page) || 1,
+    limit: 5,
+  });
 
   return (
     <>
@@ -63,12 +71,12 @@ async function Page({
           ) : (
             result.donations.map((donation) => (
               <TableRow key={donation._id}>
-                <TableCell>{donation.Name}</TableCell>
-                <TableCell>{donation.Date}</TableCell>
-                <TableCell>{donation.Amount}</TableCell>
-                <TableCell>{donation.Type}</TableCell>
-                <TableCell>{donation.Fund}</TableCell>
-                <TableCell>
+                <TableCell className="py-2">{donation.Name}</TableCell>
+                <TableCell className="py-2">{donation.Date}</TableCell>
+                <TableCell className="py-2">{donation.Amount}</TableCell>
+                <TableCell className="py-2">{donation.Type}</TableCell>
+                <TableCell className="py-2">{donation.Fund}</TableCell>
+                <TableCell className="py-2">
                   <div className="flex gap-2">
                     <Link href={`/donation/${donation._id}`}>
                       <button className="button-edit">
@@ -90,8 +98,8 @@ async function Page({
       </Table>
 
       <Pagination
-        path='donations'
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        path="donation"
+        pageNumber={result.pageNumber}
         isNext={result.isNext}
       />
       </div>

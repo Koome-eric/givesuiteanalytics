@@ -50,8 +50,18 @@ export async function addDonation({ Name, Date, Amount, Type, Fund, account, Cam
   }
 }
 
-// Fetch donations for a specific user
-export async function fetchDonations(userId: string, page: number = 1, limit: number = 10) {
+/// Fetch donations for a specific user with optional search query
+export async function fetchDonations({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  limit = 5,
+}: {
+  userId: string; // Specify the type for userId
+  searchString?: string;
+  pageNumber?: number;
+  limit?: number;
+}) {
   try {
     connectToDB();
 
@@ -61,25 +71,35 @@ export async function fetchDonations(userId: string, page: number = 1, limit: nu
       throw new Error('User not found');
     }
 
-    // Calculate the number of members to skip based on the page number and limit
-    const skip = (page - 1) * limit;
+    // Create a regex for case-insensitive search
+    const searchRegex = new RegExp(searchString, 'i');
 
-    // Find members where the author matches the user's ObjectId, and paginate the results
-    const donations = await Donation.find({ author: user._id })
+    // Calculate the number of donations to skip based on the page number and limit
+    const skip = (pageNumber - 1) * limit;
+
+    // Find donations where the author matches the user's ObjectId and the name matches the search query, and paginate the results
+    const donations = await Donation.find({ 
+      author: user._id,
+      Name: { $regex: searchRegex }
+    })
       .skip(skip)
       .limit(limit);
 
-    // Count the total number of members for the user
-    const totalDonations = await Donation.countDocuments({ author: user._id });
+    // Count the total number of donations for the user that match the search query
+    const totalDonations = await Donation.countDocuments({ 
+      author: user._id,
+      Name: { $regex: searchRegex }
+    });
 
     // Check if there is a next page
     const isNext = totalDonations > skip + donations.length;
 
-    return { donations, isNext };
+    return { donations, isNext, pageNumber: pageNumber };
   } catch (error: any) {
     throw new Error(`Failed to fetch donations: ${error.message}`);
   }
 }
+
 
 // Fetch total donations amount for a specific user
 export async function fetchTotalDonationsAmount(userId: string): Promise<number> {
@@ -139,5 +159,37 @@ export const deleteDonation = async (formData: FormData) => {
     throw new Error("Failed to delete donation!");
   }
 
-  revalidatePath("/donation");
+  revalidatePath("/");
+};
+
+// Update a donation by ID
+export async function updateDonation(donationId: string, updateData: Partial<Params>) {
+  try {
+    connectToDB();
+
+    // Update the donation
+    const updatedDonation = await Donation.findByIdAndUpdate(donationId, updateData, { new: true });
+
+    // Optionally revalidate the path if using ISR
+    revalidatePath(`/donation`);
+
+    return updatedDonation; // Return the updated donation
+  } catch (error: any) {
+    throw new Error(`Failed to update donation: ${error.message}`);
+  }
+}
+
+export const fetchDonation = async (donationId: string) => {
+  try {
+    await connectToDB();
+    const donation = await Donation.findById(donationId);
+
+    if (!donation) {
+      throw new Error('Donation not found');
+    }
+
+    return donation;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch donation: ${error.message}`);
+  }
 };

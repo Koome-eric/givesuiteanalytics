@@ -20,7 +20,7 @@ const LatestDonations = ({ donations }: { donations: Donation[] }) => {
           <li key={index} className="mb-3">
             <div className="flex justify-between">
               <span className="font-medium">{donation.Name}</span>
-              <span className="text-gray-500">{`$${donation.Amount}`}</span>
+              <span className="text-sm text-gray-500">{`$${donation.Amount}`}</span>
             </div>
             <div className="text-sm1 text-gray-500">{donation.Date}</div>
           </li>

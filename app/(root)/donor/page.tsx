@@ -30,8 +30,15 @@ async function Page({
   const userInfo = await fetchUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const result = await fetchDonors(user.id, searchParams?.page ? +searchParams.page : 1); 
-  
+  const q = searchParams?.q || "";
+  const page = searchParams?.page || 1;
+
+  const result = await fetchDonors({
+    userId: user.id,
+    searchString: searchParams.q,
+    pageNumber: Number(searchParams?.page) || 1,
+    limit: 5,
+  });
 
   return (
     <>
@@ -63,11 +70,11 @@ async function Page({
           ) : (
             result.donors.map((donor) => (
               <TableRow key={donor._id}>
-                <TableCell>{donor.name}</TableCell>
-                <TableCell>{donor.primaryemailaddress}</TableCell>
-                <TableCell>{donor.primarycity}</TableCell>
-                <TableCell>{donor.primarystreet}</TableCell>
-                <TableCell>
+                <TableCell className="py-2">{donor.name}</TableCell>
+                <TableCell className="py-2">{donor.primaryemailaddress}</TableCell>
+                <TableCell className="py-2">{donor.primarycity}</TableCell>
+                <TableCell className="py-2">{donor.primarystreet}</TableCell>
+                <TableCell className="py-2">
                   <div className="flex gap-2">
                     <Link href={`/donor/${donor._id}`}>
                       <button className="button-edit">
@@ -89,8 +96,8 @@ async function Page({
       </Table>
 
       <Pagination
-        path='donors'
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        path="donor"
+        pageNumber={result.pageNumber}
         isNext={result.isNext}
       />
       </div>

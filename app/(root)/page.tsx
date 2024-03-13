@@ -30,11 +30,11 @@ async function Home() {
         <AnalyticsCard title="Total Donors" count={totalDonors.toString()} icon={<FaHandHoldingHeart />} />
         <AnalyticsCard title="Total Donations" count={`$${totalAmount.toFixed(2)}`} icon={<FaDollarSign />} />
       </section>
-      <section className='mt-9 grid grid-cols-4 gap-10'>
-        <div className="col-span-1">
+      <section className='mt-9 grid grid-cols-6 gap-10'>
+        <div className="col-span-2">
           <LatestDonations donations={latestDonations} />
         </div>
-        <div className="col-span-3">
+        <div className="col-span-4">
           <DonationsChart donationData={latestDonations} />
         </div>
       </section>

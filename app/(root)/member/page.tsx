@@ -30,7 +30,15 @@ async function Page({
   const userInfo = await fetchUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const result = await fetchMembers(user.id, searchParams?.page ? +searchParams.page : 1);
+  const q = searchParams?.q || "";
+  const page = searchParams?.page || 1;
+
+  const result = await fetchMembers({
+    userId: user.id,
+    searchString: searchParams.q,
+    pageNumber: Number(searchParams?.page) || 1,
+    limit: 5,
+  });
 
   return (
     <>
@@ -63,12 +71,12 @@ async function Page({
           ) : (
             result.members.map((member) => (
               <TableRow key={member._id}>
-                <TableCell>{member.username}</TableCell>
-                <TableCell>{member.email}</TableCell>
-                <TableCell>{member.role}</TableCell>
-                <TableCell>{member.phone}</TableCell>
+                <TableCell className="py-2">{member.username}</TableCell>
+                <TableCell className="py-2">{member.email}</TableCell>
+                <TableCell className="py-2">{member.role}</TableCell>
+                <TableCell className="py-2">{member.phone}</TableCell>
                 
-                <TableCell>
+                <TableCell className="py-2">
                   <div className="flex gap-2">
                     <Link href={`/member/${member._id}`}>
                       <button className="button-edit">
@@ -90,8 +98,8 @@ async function Page({
       </Table>
 
       <Pagination
-        path='members'
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        path="member"
+        pageNumber={result.pageNumber}
         isNext={result.isNext}
       />
       </div>
