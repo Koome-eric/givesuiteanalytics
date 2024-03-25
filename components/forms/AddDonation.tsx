@@ -74,7 +74,7 @@ function AddDonation({ userId }: Props) {
             name={fieldName as keyof DonationFormValues}
             render={({ field }) => (
               <FormItem className='flex w-full flex-col gap-3'>
-                <FormLabel className='text-base-semibold text-light-2'>
+                <FormLabel className='text-base-semibold text-dark-2'>
                   {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
                 </FormLabel>
                 <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
