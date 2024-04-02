@@ -5,7 +5,7 @@ const donationSchema = new mongoose.Schema(
       Name: {
           type: String,
           required: true,
-          unique: true,
+          
         },
         author: {
           type: mongoose.Schema.Types.ObjectId,
