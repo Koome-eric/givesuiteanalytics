@@ -8,7 +8,7 @@ import "../globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pivotly",
+  title: "Givesuite",
   description: "GoHighlevel Analytics Dashboard",
 };
 
