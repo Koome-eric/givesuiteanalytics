@@ -115,7 +115,26 @@ export async function fetchTotalDonationsAmount(userId: string): Promise<number>
     // Aggregate the total donations amount for the user
     const result = await Donation.aggregate([
       { $match: { author: user._id } },
-      { $project: { amountAsDouble: { $toDouble: "$Amount" } } }, // Convert Amount to double
+      {
+        $project: {
+          cleanedAmount: {
+            $trim: {
+              input: {
+                $replaceAll: {
+                  input: "$Amount",
+                  find: "Total amount: ",
+                  replacement: ""
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          amountAsDouble: { $toDouble: "$cleanedAmount" }
+        }
+      },
       { $group: { _id: null, totalAmount: { $sum: "$amountAsDouble" } } } // Sum the converted amounts
     ]);
 
