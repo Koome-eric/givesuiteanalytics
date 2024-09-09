@@ -8,7 +8,7 @@ import { fetchTotalMembers } from "@/lib/actions/member.actions";
 import { fetchTotalDonors } from "@/lib/actions/donor.actions";
 import { fetchTotalDonationsAmount } from "@/lib/actions/donation.actions";
 import DonationsChart from '@/components/charts/DonationsChart';
-import { fetchLatestDonations } from "@/lib/actions/donation.actions";
+import { fetchLatestDonations, fetchYearlyDonations } from "@/lib/actions/donation.actions";
 import LatestDonations from '@/components/latest/LatestDonations';
 
 async function Home() {
@@ -22,6 +22,7 @@ async function Home() {
   const totalDonors = await fetchTotalDonors(user.id);
   const totalAmount = await fetchTotalDonationsAmount(user.id);
   const latestDonations = await fetchLatestDonations(user.id);
+  const yearlyDonations = await fetchYearlyDonations(user.id);
 
   return (
     <>
@@ -35,7 +36,7 @@ async function Home() {
           <LatestDonations donations={latestDonations} />
         </div>
         <div className="col-span-4">
-          <DonationsChart donationData={latestDonations} />
+          <DonationsChart donationData={yearlyDonations} />
         </div>
       </section>
     </>

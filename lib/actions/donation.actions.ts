@@ -50,7 +50,7 @@ export async function addDonation({ Name, Date, Amount, Type, Fund, account, Cam
   }
 }
 
-/// Fetch donations for a specific user with optional search query
+// Fetch donations for a specific user with optional search query
 export async function fetchDonations({
   userId,
   searchString = "",
@@ -78,12 +78,14 @@ export async function fetchDonations({
     const skip = (pageNumber - 1) * limit;
 
     // Find donations where the author matches the user's ObjectId and the name matches the search query, and paginate the results
-    const donations = await Donation.find({ 
-      author: user._id,
-      Name: { $regex: searchRegex }
-    })
-      .skip(skip)
-      .limit(limit);
+    const donations = await Donation.aggregate([
+      { $match: { author: user._id, Name: { $regex: searchRegex } } },
+      { $addFields: { sortableDate: { $dateFromString: { dateString: '$Date', format: '%m/%d/%Y' } } } },
+      { $sort: { sortableDate: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { sortableDate: 0 } } // Remove the sortableDate field from the final output
+    ]);
 
     // Count the total number of donations for the user that match the search query
     const totalDonations = await Donation.countDocuments({ 
@@ -115,26 +117,7 @@ export async function fetchTotalDonationsAmount(userId: string): Promise<number>
     // Aggregate the total donations amount for the user
     const result = await Donation.aggregate([
       { $match: { author: user._id } },
-      {
-        $project: {
-          cleanedAmount: {
-            $trim: {
-              input: {
-                $replaceAll: {
-                  input: "$Amount",
-                  find: "Total amount: ",
-                  replacement: ""
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          amountAsDouble: { $toDouble: "$cleanedAmount" }
-        }
-      },
+      { $project: { amountAsDouble: { $toDouble: "$Amount" } } }, // Convert Amount to double
       { $group: { _id: null, totalAmount: { $sum: "$amountAsDouble" } } } // Sum the converted amounts
     ]);
 
@@ -145,7 +128,7 @@ export async function fetchTotalDonationsAmount(userId: string): Promise<number>
 }
 
 // Fetch latest donations for a specific user
-export async function fetchLatestDonations(userId: string, limit: number = 5) {
+export async function fetchLatestDonations(userId: string, limit: number = 6) {
   try {
     connectToDB();
 
@@ -156,16 +139,20 @@ export async function fetchLatestDonations(userId: string, limit: number = 5) {
     }
 
     // Find donations where the author matches the user's ObjectId, and limit the results
-    const donations = await Donation.find({ author: user._id })
-      .select('Name Date Amount')
-      .sort({ Date: -1 }) // Sort by date in descending order
-      .limit(limit);
+    const donations = await Donation.aggregate([
+      { $match: { author: user._id } },
+      { $addFields: { sortableDate: { $dateFromString: { dateString: '$Date', format: '%m/%d/%Y' } } } },
+      { $sort: { sortableDate: -1 } }, // Sort by sortableDate in descending order
+      { $limit: limit },
+      { $project: { Name: 1, Date: 1, Amount: 1, _id: 1 } } // Select only the necessary fields
+    ]);
 
     return donations;
   } catch (error: any) {
     throw new Error(`Failed to fetch latest donations: ${error.message}`);
   }
 }
+
 
 export const deleteDonation = async (formData: FormData) => {
   const { id } = Object.fromEntries(formData);
@@ -212,3 +199,62 @@ export const fetchDonation = async (donationId: string) => {
     throw new Error(`Failed to fetch donation: ${error.message}`);
   }
 };
+
+
+// Fetch yearly donations for a specific user
+export async function fetchYearlyDonations(userId: string) {
+  try {
+    await connectToDB();
+
+    // Find the user document to get the ObjectId
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const currentYear = '2024'; // Set the current year as a string
+
+    // Find donations where the author matches the user's ObjectId and the year matches the current year
+    const donations = await Donation.find({
+      author: user._id,
+      Date: { $regex: `^\\d{2}/\\d{2}/${currentYear}` } // Match dates in the format mm/dd/2024
+    });
+
+    // Group donations by month
+    const monthlyDonations: Record<string, any[]> = {};
+
+    donations.forEach(donation => {
+      const month = donation.Date.substring(0, 2); // Extract the month (e.g., '01' for January)
+      
+      if (!monthlyDonations[month]) {
+        monthlyDonations[month] = [];
+      }
+      
+      monthlyDonations[month].push(donation.toObject());
+    });
+
+    // Convert monthlyDonations to a plain object format
+    const plainMonthlyDonations = Object.fromEntries(
+      Object.entries(monthlyDonations).map(([month, donations]) => [
+        month,
+        donations.map(donation => ({
+          ...donation,
+          _id: donation._id.toString(),
+          author: donation.author.toString(),
+        })),
+      ])
+    );
+
+    return plainMonthlyDonations;
+  } catch (error) {
+    const message = (error instanceof Error) ? error.message : 'An unknown error occurred';
+    console.error('Error fetching yearly donations:', message);
+    throw new Error(`Failed to fetch yearly donations: ${message}`);
+  }
+}
+
+
+
+
+
+
