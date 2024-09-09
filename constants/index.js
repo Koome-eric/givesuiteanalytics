@@ -25,6 +25,11 @@ export const sidebarLinks = [
       route: "/report",
       label: "Reports",
     },
+    {
+      imgURL: "/assets/user.svg",
+      route: "/donorsearch",
+      label: "Donorsearch",
+    },
   ];
   
   export const profileTabs = [

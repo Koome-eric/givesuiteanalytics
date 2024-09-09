@@ -7,6 +7,7 @@ export const DonorValidation = z.object({
   primarystreet: z.string().optional(),
   primarycity: z.string().optional(),
   primarystate: z.string().optional(),
+  phonenumber: z.string().optional(),
   donationnumber: z.number().min(0, "Donation number must be a positive number").optional(),
   donationamount: z.string().optional(),
   lastdate: z.string().optional(),

@@ -2,6 +2,7 @@
 
 import { connectToDB } from "../mongoose";
 import Donor from "../models/donor.model";
+import Donation from "../models/donation.model";
 import User from "../models/user.model";
 import { revalidatePath } from "next/cache";
 
@@ -171,5 +172,32 @@ export const fetchDonor = async (donorId: string) => {
     return donor;
   } catch (error: any) {
     throw new Error(`Failed to fetch donor: ${error.message}`);
+  }
+};
+
+// Fetch all donations made by a specific donor based on the name
+export const fetchDonationsByDonorName = async (donorName: string) => {
+  try {
+    connectToDB();
+    const donations = await Donation.find({ Name: donorName }).sort({ Date: -1 });
+    return donations;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch donations by donor name!");
+  }
+};
+
+// Get the total donation amount made by a specific donor based on the name
+export const getTotalDonationsAmountByDonorName = async (donorName: string) => {
+  try {
+    const donations = await fetchDonationsByDonorName(donorName);
+    const totalAmount = donations.reduce((total, donation) => {
+      const amount = parseFloat(donation.Amount.replace(/[^0-9.-]+/g, ""));
+      return total + amount;
+    }, 0);
+    return totalAmount;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to calculate total donations amount by donor name!");
   }
 };

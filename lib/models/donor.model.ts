@@ -20,6 +20,9 @@ const donorSchema = new mongoose.Schema(
           primarystate: {
             type: String,
           },
+          phonenumber: {
+            type: String,
+          },
           donationnumber: {
             type: Number,
             min: 0,
